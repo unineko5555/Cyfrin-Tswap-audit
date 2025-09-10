@@ -290,6 +290,8 @@ contract TSwapPool is ERC20 {
         revertIfZero(outputReserves)
         returns (uint256 inputAmount)
     {
+        // inputReserves * outputAmount / (outputReserves - outputAmount) = inputAmount
+        // plus fees ... ignore them for now
         return
             ((inputReserves * outputAmount) * 10000) /
             ((outputReserves - outputAmount) * 997);
@@ -333,6 +335,7 @@ contract TSwapPool is ERC20 {
      * @param inputToken ERC20 token to pull from caller
      * @param outputToken ERC20 token to send to caller
      * @param outputAmount The exact amount of tokens to send to caller
+     * @audit-info missing deadline param in natspec
      */
     function swapExactOutput(
         IERC20 inputToken,
@@ -396,6 +399,7 @@ contract TSwapPool is ERC20 {
             revert TSwapPool__InvalidToken();
         }
 
+        // @audit breaks protocol. invariant!!!!
         swap_count++;
         if (swap_count >= SWAP_COUNT_MAX) {
             swap_count = 0;
